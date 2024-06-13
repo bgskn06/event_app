@@ -1,4 +1,6 @@
+import 'package:event_app/halaman_login.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class HalamanRegister extends StatefulWidget {
   const HalamanRegister({super.key});
@@ -56,7 +58,9 @@ class _HalamanRegisterState extends State<HalamanRegister> {
                 ),
                 const SizedBox(height: 30),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Get.to(()=>HalamanLogin());
+                  },
                   child: const Text("Daftar")
                 ),
               ],

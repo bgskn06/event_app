@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class TabMyEvent extends StatefulWidget {
+class TabDaftarMahasiswa extends StatefulWidget {
   @override
-  _TabMyEventState createState() => _TabMyEventState();
+  _TabDaftarMahasiswaState createState() => _TabDaftarMahasiswaState();
 }
 
-class _TabMyEventState extends State<TabMyEvent> {
+class _TabDaftarMahasiswaState extends State<TabDaftarMahasiswa> {
   List<bool> isNotificationActiveList = []; // List of booleans to track notification status for each event
 
   @override

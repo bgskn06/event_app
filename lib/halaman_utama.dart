@@ -1,5 +1,5 @@
+import 'package:event_app/tab_daftar_mahasiswa.dart';
 import 'package:event_app/tab_event.dart';
-import 'package:event_app/tab_myEvent.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -21,7 +21,7 @@ class _HalamanUtamaState extends State<HalamanUtama> {
         body: TabBarView(
           children: <Widget>[
             TabEvent(),
-            TabMyEvent(),
+            TabDaftarMahasiswa(),
           ],
         ),
         bottomNavigationBar: Padding(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'detail_event.dart';
 
 class TabEvent extends StatefulWidget {
   @override
@@ -22,20 +23,7 @@ class _TabEventState extends State<TabEvent> {
       setState(() {
         _daftarEvent = _box;
       });
-    }).catchError((error) {
-      // Handle error if Hive box fails to open
-      print("Error opening Hive box: $error");
     });
-  }
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _descriptionController.dispose();
-    _timeController.dispose();
-    _dateController.dispose();
-    _categoryController.dispose();
-    super.dispose();
   }
 
   @override
@@ -62,16 +50,12 @@ class _TabEventState extends State<TabEvent> {
                 IconButton(
                   icon: Icon(Icons.date_range_outlined),
                   onPressed: () async {
-                    final selectedDate = await showDatePicker(
+                    await showDatePicker(
                       context: context,
                       initialDate: DateTime.now(),
                       firstDate: DateTime(2000),
                       lastDate: DateTime(2100),
                     );
-                    if (selectedDate != null) {
-                      _dateController.text =
-                          "${selectedDate.toLocal()}".split(' ')[0];
-                    }
                   },
                   tooltip: 'Select Date',
                 ),
@@ -197,17 +181,15 @@ class _TabEventState extends State<TabEvent> {
               ),
               child: Text("Simpan"),
               onPressed: () {
-                if (_daftarEvent != null) {
-                  _daftarEvent!.add({
-                    "judul": _titleController.text,
-                    "deskripsi": _descriptionController.text,
-                    "jam": _timeController.text,
-                    "tanggal": _dateController.text,
-                    "kategori": _categoryController.text,
-                    "timestamp": DateTime.now().toIso8601String(),
-                  });
-                  Navigator.of(context).pop();
-                }
+                _daftarEvent?.add({
+                  "judul": _titleController.text,
+                  "deskripsi": _descriptionController.text,
+                  "jam": _timeController.text,
+                  "tanggal": _dateController.text,
+                  "kategori": _categoryController.text,
+                  "timestamp": DateTime.now().toIso8601String(),
+                });
+                Navigator.of(context).pop();
               },
             ),
             ElevatedButton(
@@ -223,23 +205,6 @@ class _TabEventState extends State<TabEvent> {
           ],
         );
       },
-    );
-  }
-}
-
-void main() async {
-  await Hive.initFlutter();
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: Text("Event Manager")),
-        body: TabEvent(),
-      ),
     );
   }
 }
