@@ -10,6 +10,14 @@ class HalamanRegister extends StatefulWidget {
 }
 
 class _HalamanRegisterState extends State<HalamanRegister> {
+
+  TextEditingController _email = TextEditingController();
+  TextEditingController _name = TextEditingController();
+  TextEditingController _nim = TextEditingController();
+  TextEditingController _noHp = TextEditingController();
+  TextEditingController _pass = TextEditingController();
+  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,40 +34,45 @@ class _HalamanRegisterState extends State<HalamanRegister> {
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
+                  controller: _email,
                   decoration: InputDecoration(
                       hintText: "Username", icon: Icon(Icons.person),),
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
+                  controller: _name,
                   decoration: InputDecoration(
                       hintText: "Nama Lengkap", icon: Icon(Icons.badge)),
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
+                  controller: _nim,
                   decoration: InputDecoration(
                       hintText: "NIM", icon: Icon(Icons.school)),
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
+                  controller: _noHp,
                   decoration: InputDecoration(
                       hintText: "No. Hp", icon: Icon(Icons.phone)),
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
+                  controller: _pass,
                   obscureText: true,
                   decoration: InputDecoration(
                       hintText: "Password", icon: Icon(Icons.lock)),
                 ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  obscureText: true,
-                  decoration: InputDecoration(
-                      hintText: "Konfirmasi Password", icon: Icon(Icons.lock)),
-                ),
+                // const SizedBox(height: 20),
+                // TextFormField(
+                //   obscureText: true,
+                //   decoration: InputDecoration(
+                //       hintText: "Konfirmasi Password", icon: Icon(Icons.lock)),
+                // ),
                 const SizedBox(height: 30),
                 ElevatedButton(
                   onPressed: () {
-                    Get.to(()=>HalamanLogin());
+                    registration();
                   },
                   child: const Text("Daftar")
                 ),
@@ -69,5 +82,8 @@ class _HalamanRegisterState extends State<HalamanRegister> {
         ),
       ),
     );
+  }
+  Future registration() async{
+    
   }
 }

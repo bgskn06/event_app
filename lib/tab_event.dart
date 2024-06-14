@@ -14,18 +14,6 @@ class _TabEventState extends State<TabEvent> {
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _categoryController = TextEditingController();
 
-  Box? _daftarEvent;
-
-  @override
-  void initState() {
-    super.initState();
-    Hive.openBox("daftar_event").then((_box) {
-      setState(() {
-        _daftarEvent = _box;
-      });
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -71,23 +59,6 @@ class _TabEventState extends State<TabEvent> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 16),
-            _daftarEvent == null
-                ? Center(child: CircularProgressIndicator())
-                : ValueListenableBuilder(
-                    valueListenable: _daftarEvent!.listenable(),
-                    builder: (context, box, widget) {
-                      final eventKeys = box.keys.toList();
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: eventKeys.length,
-                        itemBuilder: (context, index) {
-                          Map<String, dynamic> event = _daftarEvent!.get(eventKeys[index]);
-                          return _buildEventCard(context, event);
-                        },
-                      );
-                    },
-                  ),
           ],
         ),
       ),
@@ -180,17 +151,7 @@ class _TabEventState extends State<TabEvent> {
                 foregroundColor: Colors.white, // Ubah warna tulisan tombol
               ),
               child: Text("Simpan"),
-              onPressed: () {
-                _daftarEvent?.add({
-                  "judul": _titleController.text,
-                  "deskripsi": _descriptionController.text,
-                  "jam": _timeController.text,
-                  "tanggal": _dateController.text,
-                  "kategori": _categoryController.text,
-                  "timestamp": DateTime.now().toIso8601String(),
-                });
-                Navigator.of(context).pop();
-              },
+              onPressed: () {},
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(

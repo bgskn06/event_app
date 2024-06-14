@@ -2,6 +2,8 @@ import 'package:event_app/halaman_register.dart';
 import 'package:event_app/halaman_utama.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 
 class HalamanLogin extends StatefulWidget {
@@ -12,6 +14,31 @@ class HalamanLogin extends StatefulWidget {
 }
 
 class _HalamanLoginState extends State<HalamanLogin> {
+ bool isChecked = false;
+
+  TextEditingController email = TextEditingController();
+  TextEditingController pass = TextEditingController();
+
+  late Box box1;
+
+  @override
+  void initState() {
+    super.initState();
+    createBox();
+  }
+  void createBox() async{
+    box1 = await Hive.openBox('logindata');
+    getdata();
+  }
+  void getdata() async{
+    if(box1.get('email')!=null){
+      email.text = box1.get('email');
+    }
+    if(box1.get('pass')!=null){
+      pass.text = box1.get('pass');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final logo = Hero(
@@ -24,6 +51,7 @@ class _HalamanLoginState extends State<HalamanLogin> {
     );
 
     final username = TextFormField(
+      controller: email,
       keyboardType: TextInputType.emailAddress,
       autofocus: false,
       decoration: InputDecoration(
@@ -34,6 +62,7 @@ class _HalamanLoginState extends State<HalamanLogin> {
     );
 
     final password = TextFormField(
+      controller: pass,
       autofocus: false,
       obscureText: true,
       decoration: InputDecoration(
@@ -53,13 +82,28 @@ class _HalamanLoginState extends State<HalamanLogin> {
           minWidth: 200.0,
           height: 42.0,
           onPressed: () {
-            Get.off(()=>HalamanUtama());
+            login();
           },
           color: Colors.blueAccent,
           child: const Text('Log In', style: TextStyle(color: Colors.white)),
         ),
       ),
     );
+    final ingatSaya = Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Text("Ingat Saya",style: TextStyle(color: Colors.black54),),
+      Checkbox(
+        value: isChecked,
+        onChanged: (value){
+          isChecked = !isChecked;
+            setState(() {
+              
+            });
+        },
+      ),
+    ]);
+
     final daftarAkun = TextButton(
       child: const Text(
         'Belum punya akun? daftar',
@@ -84,10 +128,18 @@ class _HalamanLoginState extends State<HalamanLogin> {
             password,
             const SizedBox(height: 24.0),
             loginButton,
+            ingatSaya,
             daftarAkun
           ],
         ),
       ),
     );
+  }
+
+  void login(){
+    if(isChecked){
+      box1.put('email', email.text);
+      box1.put('pass', pass.text);
+    }
   }
 }

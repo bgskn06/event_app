@@ -17,7 +17,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    Timer(Duration(seconds: 3),(){
+    Timer(Duration(seconds: 7),(){
       Get.off(()=>HalamanLogin());
     });
   }
@@ -25,7 +25,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Lottie.asset("aset_media/gambar/loading.json",height: 50),
+        child: Lottie.asset("aset_media/gambar/loading.json",height: 100),
       ),
     );
   }

@@ -11,8 +11,7 @@ class _TabDaftarMahasiswaState extends State<TabDaftarMahasiswa> {
   @override
   Widget build(BuildContext context) {
     List<Map<String, dynamic>> events = [
-      {"title": "My Event 1", "description": "Deskripsi my event 1"},
-      {"title": "My Event 2", "description": "Deskripsi my event 2"},
+
     ];
     return SingleChildScrollView(
       child: Padding(
