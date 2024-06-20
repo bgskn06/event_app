@@ -15,11 +15,13 @@ class HalamanLogin extends StatefulWidget {
 
 class _HalamanLoginState extends State<HalamanLogin> {
  bool isChecked = false;
+ bool isLogged = false;
 
   TextEditingController email = TextEditingController();
   TextEditingController pass = TextEditingController();
 
   late Box box1;
+  late Box box2;
 
   @override
   void initState() {
@@ -28,8 +30,10 @@ class _HalamanLoginState extends State<HalamanLogin> {
   }
   void createBox() async{
     box1 = await Hive.openBox('logindata');
+    box2 = await Hive.openBox('userdata'); 
     getdata();
   }
+
   void getdata() async{
     if(box1.get('email')!=null){
       email.text = box1.get('email');
@@ -136,10 +140,19 @@ class _HalamanLoginState extends State<HalamanLogin> {
     );
   }
 
-  void login(){
-    if(isChecked){
-      box1.put('email', email.text);
-      box1.put('pass', pass.text);
+  Future login() async{
+    String? storedEmail = box2.get(email);
+    String? storedpass = box2.get(pass);
+    
+
+    if (email.text == storedEmail && pass.text == storedpass) {
+      if(isChecked){
+        box1.put('email', email.text);
+        box1.put('pass', pass.text);
+      }
+      Get.to(()=>HalamanUtama());
+    } else {
+      Get.snackbar('Error', 'Email atau password salah');
     }
   }
 }

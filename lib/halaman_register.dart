@@ -1,6 +1,7 @@
 import 'package:event_app/halaman_login.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 
 class HalamanRegister extends StatefulWidget {
   const HalamanRegister({super.key});
@@ -10,6 +11,16 @@ class HalamanRegister extends StatefulWidget {
 }
 
 class _HalamanRegisterState extends State<HalamanRegister> {
+  late Box box2;
+
+  void initState() {
+    super.initState();
+    createBox();
+  }
+  void createBox() async{
+    box2 = await Hive.openBox('userdata');
+    setState(() {});
+  }
 
   TextEditingController _email = TextEditingController();
   TextEditingController _name = TextEditingController();
@@ -84,6 +95,20 @@ class _HalamanRegisterState extends State<HalamanRegister> {
     );
   }
   Future registration() async{
-    
+    if (_email.text.isEmpty || _name.text.isEmpty || _nim.text.isEmpty || _noHp.text.isEmpty || _pass.text.isEmpty) {
+    Get.snackbar('Error', 'Semua field harus diisi');
+    return;
+  }
+    box2.put('email', _email.value.text);
+    box2.put('name', _name.text);
+    box2.put('nim', _nim.text);
+    box2.put('noHp', _noHp.text);
+    box2.put('pass', _pass.text);
+    print(_email.text);
+    print(_name.text);
+    print(_nim.text);
+    print(_noHp.text);
+    print(_pass.text);
+    Get.to(()=>HalamanLogin());
   }
 }
