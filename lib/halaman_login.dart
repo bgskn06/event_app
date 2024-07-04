@@ -1,5 +1,6 @@
 import 'package:event_app/halaman_register.dart';
 import 'package:event_app/halaman_utama.dart';
+import 'package:event_app/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -30,16 +31,16 @@ class _HalamanLoginState extends State<HalamanLogin> {
   }
   void createBox() async{
     box1 = await Hive.openBox('logindata');
-    box2 = await Hive.openBox('userdata'); 
+    box2 = await Hive.openBox('ingatsaya');
     getdata();
   }
 
   void getdata() async{
-    if(box1.get('email')!=null){
-      email.text = box1.get('email');
+    if(box2.get('email')!=null){
+      email.text = box2.get('email');
     }
-    if(box1.get('pass')!=null){
-      pass.text = box1.get('pass');
+    if(box2.get('pass')!=null){
+      pass.text = box2.get('pass');
     }
   }
 
@@ -114,7 +115,7 @@ class _HalamanLoginState extends State<HalamanLogin> {
         style: TextStyle(color: Colors.black54),
       ),
       onPressed: () {
-        Get.to(HalamanRegister());
+        Get.to(()=>HalamanRegister());
       },
     );
 
@@ -141,18 +142,21 @@ class _HalamanLoginState extends State<HalamanLogin> {
   }
 
   Future login() async{
-    String? storedEmail = box2.get(email);
-    String? storedpass = box2.get(pass);
-    
+    String? storedEmail = await box1.get("email");
+    String? storedpass = await box1.get("pass");
+    isLogged = true;
 
-    if (email.text == storedEmail && pass.text == storedpass) {
+    if (email.value.text == storedEmail && pass.value.text == storedpass) {
       if(isChecked){
-        box1.put('email', email.text);
-        box1.put('pass', pass.text);
+        box2.put('email', email.text);
+        box2.put('pass', pass.text);
       }
-      Get.to(()=>HalamanUtama());
+      box1.put('isLogged', true);
+      Get.snackbar('Success', 'Berhasil Login');
+      Get.to(()=>SplashScreen());
     } else {
       Get.snackbar('Error', 'Email atau password salah');
     }
+    
   }
 }

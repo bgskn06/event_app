@@ -11,14 +11,14 @@ class HalamanRegister extends StatefulWidget {
 }
 
 class _HalamanRegisterState extends State<HalamanRegister> {
-  late Box box2;
+  late Box box1;
 
   void initState() {
     super.initState();
     createBox();
   }
   void createBox() async{
-    box2 = await Hive.openBox('userdata');
+    box1 = await Hive.openBox('logindata');
     setState(() {});
   }
 
@@ -94,16 +94,17 @@ class _HalamanRegisterState extends State<HalamanRegister> {
       ),
     );
   }
+  
   Future registration() async{
     if (_email.text.isEmpty || _name.text.isEmpty || _nim.text.isEmpty || _noHp.text.isEmpty || _pass.text.isEmpty) {
     Get.snackbar('Error', 'Semua field harus diisi');
     return;
   }
-    box2.put('email', _email.value.text);
-    box2.put('name', _name.text);
-    box2.put('nim', _nim.text);
-    box2.put('noHp', _noHp.text);
-    box2.put('pass', _pass.text);
+    box1.put('email', _email.value.text);
+    box1.put('name', _name.text);
+    box1.put('nim', _nim.text);
+    box1.put('noHp', _noHp.text);
+    box1.put('pass', _pass.text);
     print(_email.text);
     print(_name.text);
     print(_nim.text);

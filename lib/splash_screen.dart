@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:event_app/halaman_login.dart';
+import 'package:event_app/halaman_utama.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
@@ -18,7 +19,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // TODO: implement initState
     super.initState();
     Timer(Duration(seconds: 7),(){
-      Get.off(()=>HalamanLogin());
+      Get.off(()=>HalamanUtama());
     });
   }
   @override

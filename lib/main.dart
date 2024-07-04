@@ -1,13 +1,16 @@
 import 'package:event_app/halaman_login.dart';
 import 'package:event_app/halaman_utama.dart';
 import 'package:event_app/splash_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+late var box1;
 
 void main() async {
   await Hive.initFlutter();
+  box1 = await Hive.openBox('logindata'); 
   runApp(const MyApp());
 }
 
@@ -24,7 +27,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      home: const SplashScreen(),
+      home: box1.get('isLogged', defaultValue: false) ? HalamanUtama() : HalamanLogin()
     );
   }
 }
