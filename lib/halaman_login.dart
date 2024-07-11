@@ -1,11 +1,8 @@
-import 'package:event_app/halaman_register.dart';
-import 'package:event_app/halaman_utama.dart';
-import 'package:event_app/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:event_app/halaman_register.dart';
+import 'package:event_app/splash_screen.dart';
 
 class HalamanLogin extends StatefulWidget {
   const HalamanLogin({super.key});
@@ -15,33 +12,67 @@ class HalamanLogin extends StatefulWidget {
 }
 
 class _HalamanLoginState extends State<HalamanLogin> {
- bool isChecked = false;
- bool isLogged = false;
-
   TextEditingController email = TextEditingController();
   TextEditingController pass = TextEditingController();
 
-  late Box box1;
-  late Box box2;
-
-  @override
-  void initState() {
-    super.initState();
-    createBox();
-  }
-  void createBox() async{
-    box1 = await Hive.openBox('logindata');
-    box2 = await Hive.openBox('ingatsaya');
-    getdata();
-  }
-
-  void getdata() async{
-    if(box2.get('email')!=null){
-      email.text = box2.get('email');
+  Future<void> _signInWithEmailAndPassword() async {
+    try {
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email.text,
+        password: pass.text,
+      );
+      // Jika login berhasil, tampilkan dialog sukses dan arahkan ke halaman utama
+      _showSuccessDialog();
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found' || e.code == 'wrong-password') {
+        _showErrorDialog('Username atau password salah.');
+      } else {
+        _showErrorDialog('Login gagal. Silakan coba lagi.');
+      }
     }
-    if(box2.get('pass')!=null){
-      pass.text = box2.get('pass');
-    }
+  }
+
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Login Berhasil'),
+          content: Text('Selamat datang kembali!'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                // Navigasi ke halaman utama setelah dialog ditutup
+                Get.offAll(() => SplashScreen());
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Login Gagal'),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -86,28 +117,12 @@ class _HalamanLoginState extends State<HalamanLogin> {
         child: MaterialButton(
           minWidth: 200.0,
           height: 42.0,
-          onPressed: () {
-            login();
-          },
+          onPressed: _signInWithEmailAndPassword,
           color: Colors.blueAccent,
           child: const Text('Log In', style: TextStyle(color: Colors.white)),
         ),
       ),
     );
-    final ingatSaya = Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Text("Ingat Saya",style: TextStyle(color: Colors.black54),),
-      Checkbox(
-        value: isChecked,
-        onChanged: (value){
-          isChecked = !isChecked;
-            setState(() {
-              
-            });
-        },
-      ),
-    ]);
 
     final daftarAkun = TextButton(
       child: const Text(
@@ -115,7 +130,7 @@ class _HalamanLoginState extends State<HalamanLogin> {
         style: TextStyle(color: Colors.black54),
       ),
       onPressed: () {
-        Get.to(()=>HalamanRegister());
+        Get.to(() => HalamanRegister());
       },
     );
 
@@ -133,30 +148,10 @@ class _HalamanLoginState extends State<HalamanLogin> {
             password,
             const SizedBox(height: 24.0),
             loginButton,
-            ingatSaya,
             daftarAkun
           ],
         ),
       ),
     );
-  }
-
-  Future login() async{
-    String? storedEmail = await box1.get("email");
-    String? storedpass = await box1.get("pass");
-    isLogged = true;
-
-    if (email.value.text == storedEmail && pass.value.text == storedpass) {
-      if(isChecked){
-        box2.put('email', email.text);
-        box2.put('pass', pass.text);
-      }
-      box1.put('isLogged', true);
-      Get.snackbar('Success', 'Berhasil Login');
-      Get.to(()=>SplashScreen());
-    } else {
-      Get.snackbar('Error', 'Email atau password salah');
-    }
-    
   }
 }

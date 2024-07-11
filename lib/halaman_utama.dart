@@ -2,6 +2,7 @@ import 'package:event_app/halaman_login.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HalamanUtama extends StatefulWidget {
   const HalamanUtama({Key? key}) : super(key: key);
@@ -85,6 +86,9 @@ class _HalamanUtamaState extends State<HalamanUtama> {
   ];
 
   final List<Map<String, String>> registeredEvents = [];
+  final List<String> categories = ['Semua', 'Musik', 'Seni', 'Workshop', 'Teknologi', 'Makanan', 'Olahraga', 'Film', 'Buku', 'Pendidikan', 'Tari'];
+  String selectedCategory = 'Semua';
+  DateTime? selectedDate;
 
   void showEventDetail(BuildContext context, Map<String, String> eventData) {
     showDialog(
@@ -174,6 +178,11 @@ class _HalamanUtamaState extends State<HalamanUtama> {
     );
   }
 
+  Future<void> _logout() async {
+    await FirebaseAuth.instance.signOut();
+    Get.offAll(() => HalamanLogin());
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -184,14 +193,26 @@ class _HalamanUtamaState extends State<HalamanUtama> {
           children: <Widget>[
             buildEventList(eventDataList, showEventDetail),
             buildEventList(registeredEvents, showRegisteredEventDetail),
-            Center(child: Text('Akun')),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Akun Saya', style: TextStyle(fontSize: 24)),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _logout,
+                    child: Text('Logout'),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
         bottomNavigationBar: Padding(
           padding: EdgeInsets.all(10),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white, // Warna latar belakang tab bar
+              color: Colors.white,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(16.0),
                 topRight: Radius.circular(16.0),
@@ -230,6 +251,12 @@ class _HalamanUtamaState extends State<HalamanUtama> {
   }
 
   Widget buildEventList(List<Map<String, String>> events, Function(BuildContext, Map<String, String>) onTap) {
+    List<Map<String, String>> filteredEvents = events.where((event) {
+      bool matchesCategory = selectedCategory == 'Semua' || event['kategori'] == selectedCategory;
+      bool matchesDate = selectedDate == null || event['tanggal'] == '${selectedDate!.day} ${_getMonthName(selectedDate!.month)} ${selectedDate!.year}';
+      return matchesCategory && matchesDate;
+    }).toList();
+
     return SingleChildScrollView(
       child: Padding(
         padding: EdgeInsets.all(8),
@@ -239,28 +266,48 @@ class _HalamanUtamaState extends State<HalamanUtama> {
             Row(
               children: [
                 Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      labelText: 'Cari Berdasarkan Kategori',
-                      suffixIcon: Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
+                  child: DropdownButton<String>(
+                    value: selectedCategory,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedCategory = newValue!;
+                      });
+                    },
+                    items: categories.map<DropdownMenuItem<String>>((String category) {
+                      return DropdownMenuItem<String>(
+                        value: category,
+                        child: Text(category),
+                      );
+                    }).toList(),
                   ),
                 ),
                 IconButton(
                   icon: Icon(Icons.date_range_outlined),
                   onPressed: () async {
-                    final selectedDate = await showDatePicker(
+                    final selected = await showDatePicker(
                       context: context,
                       initialDate: DateTime.now(),
                       firstDate: DateTime(2000),
                       lastDate: DateTime(2100),
                     );
+                    if (selected != null) {
+                      setState(() {
+                        selectedDate = selected;
+                      });
+                    }
                   },
-                  tooltip: 'Select Date',
+                  tooltip: 'Pilih Tanggal',
                 ),
+                if (selectedDate != null)
+                  IconButton(
+                    icon: Icon(Icons.clear),
+                    onPressed: () {
+                      setState(() {
+                        selectedDate = null;
+                      });
+                    },
+                    tooltip: 'Batal Pilihan Tanggal',
+                  ),
                 FloatingActionButton(
                   onPressed: () {},
                   child: const Icon(Icons.add),
@@ -273,7 +320,7 @@ class _HalamanUtamaState extends State<HalamanUtama> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 16),
-            ...events.map((eventData) => GestureDetector(
+            ...filteredEvents.map((eventData) => GestureDetector(
               onTap: () {
                 onTap(context, eventData);
               },
@@ -313,5 +360,13 @@ class _HalamanUtamaState extends State<HalamanUtama> {
         ),
       ),
     );
+  }
+
+  String _getMonthName(int month) {
+    List<String> months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return months[month - 1];
   }
 }

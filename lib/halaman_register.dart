@@ -1,7 +1,7 @@
-import 'package:event_app/halaman_login.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:event_app/halaman_login.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 
 class HalamanRegister extends StatefulWidget {
   const HalamanRegister({super.key});
@@ -11,23 +11,50 @@ class HalamanRegister extends StatefulWidget {
 }
 
 class _HalamanRegisterState extends State<HalamanRegister> {
-  late Box box1;
-
-  void initState() {
-    super.initState();
-    createBox();
-  }
-  void createBox() async{
-    box1 = await Hive.openBox('logindata');
-    setState(() {});
-  }
-
   TextEditingController _email = TextEditingController();
-  TextEditingController _name = TextEditingController();
-  TextEditingController _nim = TextEditingController();
-  TextEditingController _noHp = TextEditingController();
   TextEditingController _pass = TextEditingController();
   
+  Future<void> _registerWithEmailAndPassword() async {
+    try {
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: _email.text,
+        password: _pass.text,
+      );
+      // Navigasi kembali ke halaman login setelah registrasi berhasil
+      Get.off(()=>HalamanLogin()); // Kembali ke halaman sebelumnya
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        _showErrorDialog('Password yang diberikan terlalu lemah.');
+      } else if (e.code == 'email-already-in-use') {
+        _showErrorDialog('Akun sudah ada untuk email tersebut.');
+      } else {
+        _showErrorDialog('Registrasi gagal. Silakan coba lagi.');
+      }
+    } catch (e) {
+      _showErrorDialog('Terjadi kesalahan. Silakan coba lagi.');
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Error'),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,45 +74,23 @@ class _HalamanRegisterState extends State<HalamanRegister> {
                 TextFormField(
                   controller: _email,
                   decoration: InputDecoration(
-                      hintText: "Username", icon: Icon(Icons.person),),
-                ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: _name,
-                  decoration: InputDecoration(
-                      hintText: "Nama Lengkap", icon: Icon(Icons.badge)),
-                ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: _nim,
-                  decoration: InputDecoration(
-                      hintText: "NIM", icon: Icon(Icons.school)),
-                ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: _noHp,
-                  decoration: InputDecoration(
-                      hintText: "No. Hp", icon: Icon(Icons.phone)),
+                    hintText: "Username",
+                    icon: Icon(Icons.person),
+                  ),
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
                   controller: _pass,
                   obscureText: true,
                   decoration: InputDecoration(
-                      hintText: "Password", icon: Icon(Icons.lock)),
+                    hintText: "Password",
+                    icon: Icon(Icons.lock),
+                  ),
                 ),
-                // const SizedBox(height: 20),
-                // TextFormField(
-                //   obscureText: true,
-                //   decoration: InputDecoration(
-                //       hintText: "Konfirmasi Password", icon: Icon(Icons.lock)),
-                // ),
                 const SizedBox(height: 30),
                 ElevatedButton(
-                  onPressed: () {
-                    registration();
-                  },
-                  child: const Text("Daftar")
+                  onPressed: _registerWithEmailAndPassword,
+                  child: const Text("Daftar"),
                 ),
               ],
             ),
@@ -93,23 +98,5 @@ class _HalamanRegisterState extends State<HalamanRegister> {
         ),
       ),
     );
-  }
-  
-  Future registration() async{
-    if (_email.text.isEmpty || _name.text.isEmpty || _nim.text.isEmpty || _noHp.text.isEmpty || _pass.text.isEmpty) {
-    Get.snackbar('Error', 'Semua field harus diisi');
-    return;
-  }
-    box1.put('email', _email.value.text);
-    box1.put('name', _name.text);
-    box1.put('nim', _nim.text);
-    box1.put('noHp', _noHp.text);
-    box1.put('pass', _pass.text);
-    print(_email.text);
-    print(_name.text);
-    print(_nim.text);
-    print(_noHp.text);
-    print(_pass.text);
-    Get.to(()=>HalamanLogin());
   }
 }
